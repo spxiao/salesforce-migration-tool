@@ -1,0 +1,36 @@
+
+.row(style="border-bottom: 1px solid #ccc;min-width:980px;")
+  .row(style="background-color:#1F98D1;")
+    img(src="/images/app/head_logo.png",style="float:left;margin-left: 54px;margin-top: 10px;")
+    img(src="/images/app/head_right.png",style="float:right;")
+  .row
+    ol.breadcrumb(style="margin-bottom:0px;")
+      li(style="margin-left:50px;")
+        a(href="/sfconn")
+          i.icon-home 
+          span Home
+      if sfconn && !pageIndex
+        li
+          a(href="/sfconn/#{sfconn._id}")
+            i.icon-building 
+            span #{sfconn.orgName}
+      if changeSet
+        li
+          a(href="/sfconn/#{sfconn._id}/changeSets/#{changeSet._id}") 
+            i.icon-random
+            span(style="margin-left: 4px;") #{changeSet.name}
+      .pull-right(style="margin-right:90px;") 
+        if sessionUser
+          a(href="/wiki",style="margin-right:40px;")
+            i.icon-book
+            span(style="padding-left:4px;") Wiki
+          span Welcome ,&nbsp; 
+            a
+              |#{sessionUser.profile.name}
+            a.btn.btn-info.btn-xs(href="/user/logout",style="margin-left:6px;") Sign out
+        else
+          a.btn.btn-xs.btn-info(href="/auth/example-oauth2orize")
+            i.icon-user
+            span(style="margin-left:4px;") Login
+    
+      

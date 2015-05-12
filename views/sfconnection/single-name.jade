@@ -1,0 +1,22 @@
+script(type='text/javascript',src="/js/sfconn/single-name.js")
+
+#single-name.modal.fade(tabindex="-1",role="dialog",aria-labelledby="myModalLabel",aria-hidden="true")
+  input.targetCSId(type="hidden")
+  .modal-dialog(style="width:400px;margin-top:120px;")
+    .modal-content
+      .modal-header
+        button.close(type="button",data-dismiss="modal",aria-hidden="true") &times;
+        h4.modal-title Please type a name.
+      .modal-body
+        .row  
+          .col-sm-2.col-md-2.col-sm-offset-1.col-md-offset-1(style="padding-top: 6px;")
+            label.control-label Name 
+          .col-sm-6.col-md-6
+            input.name.form-control(type="text",placeholder="Name")
+          .col-sm-2.col-md-2
+            button.btn.btn-sm.btn-primary Save
+        .row  
+          .col-sm-2.col-md-2.col-sm-offset-1.col-md-offset-1(style="padding-top: 6px;")
+            label.control-label Version 
+          .col-sm-6.col-md-6
+            span V1.0

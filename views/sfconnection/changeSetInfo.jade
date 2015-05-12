@@ -1,0 +1,269 @@
+extends ../layouts/layout-default
+
+block stylesheet
+  link(rel='stylesheet', href='/styles/customer.css', type='text/css' )
+
+block scripts
+  script(type='text/javascript',src="/js/libs/spin.js")
+  script(type='text/javascript',src="/js/libs/spin.jquery.js")
+  script(type='text/javascript',src="/js/sfconn/changeSetInfo.js")
+
+block content
+  input#sfconnId(type="hidden",value="#{sfconn._id}")
+  input#csId(type="hidden",value="#{changeSet._id}")
+  .container
+    #popupWindow(style="display:none;")
+    .panel
+      .panel-body
+        .row
+          .row.alert(style="display:none;")
+          .row
+            h4 
+              span Change Set 
+              a.btn.btn-info.btn-xs.sfconn-syncFile(style="margin-left:6px;")  
+                if sfconn.syncFileStatus == 'InProgress'
+                  i.icon-refresh.icon-spin 
+                else
+                  i.icon-refresh 
+                span Sync File List
+              .col-md-3.col-sm-3.pull-right
+                button.btn.btn-sm.btn-primary(type="button",style="margin-left:4px;",onclick="window.open('/sfconn/#{sfconn._id}/changeSets?csId=#{changeSet._id}','_self')") Edit
+                //button.btn.btn-sm.btn-primary.archive(type="button",style="margin-left:4px;",onclick="clickBtnArchive(this);") Archive
+                button.btn.btn-sm.btn-primary.archive-validate(type="button",style="margin-left:4px;",onclick="clickBtnValidate(this);") Validate
+                button.btn.btn-sm.btn-primary.archive-deploy(type="button",style="margin-left:4px;",onclick="clickBtnDeploy(this);") Deploy
+              br
+              small(style="margin-left:15px;") #{sfconn.orgName}(#{sfconn.userName})
+                span 
+                  |Last Syncronization :
+                span.lastFileSyncDate 
+                  =moment(sfconn.lastFileSyncDate).format(dateformat)
+          .alert.alert-dismissable.sfconn-sync-info(style="margin:0px;display:none;margin-left:6px;")
+            button.close(type="button",data-dismiss="alert",aria-hidden="true") &times;
+            span.sfconn-sync-info
+          .row.sectionhead(style="margin-top:5px;") 
+            .col-md-5.col-sm-5
+              h4 Files
+                //if changeSet.archiveStatus == 'block'
+                  button.btn.btn-xs.btn-warning(type="button",style="margin-left:4px;",disabled=true) Edit
+                    em (Archived . You can't edit this ChangeSet files.)
+                //else
+                  button.btn.btn-xs.btn-info(type="button",style="margin-left:4px;",onclick="window.open('/sfconn/#{sfconn._id}/changeSets?csId=#{changeSet._id}','_self')") Edit
+          hr
+          .row.block-body
+            ul.list-unstyled
+              for fileInfo in changeSet.files
+                li(ref="#{fileInfo.fixedMetaName}",mode="pack") 
+                  h5 
+                    i.icon-plus-sign.controlBtn.controlFold
+                    span #{fileInfo.fixedMetaName}
+                  for fileName in fileInfo.files
+                    li(style="margin-left:15px;display:none;",ref="#{fileInfo.fixedMetaName}",mode="file") 
+                      em #{fileName}
+        //.row
+          .row.sectionhead  
+            .col-md-3
+              h4 Archives
+          hr
+          .row.block-body
+            if archives && archives.length>0
+              .col-md-9
+                table.table.table-condensed.table-hover
+                  thead
+                    tr
+                      th Created Date
+                      th Version
+                      th Status
+                      th Action
+                      th
+                  tbody
+                    for archive in archives
+                      - var createdDate = moment(archive.createdDate).format('DD.MM.YYYY HH:mm:ss');
+                      tr(id="#{archive._id}")
+                        td 
+                          = createdDate
+                        td #{archive.version}
+                        td 
+                          if archive.status=='new'||archive.status=='inProcess'
+                            i(title="Processing").icon-large.icon-spinner.icon-spin.archiveStatus
+                          else 
+                            span(title="#{archive.archiveErrorInfo}")|#{archive.status}
+                        td 
+                          if archive.status=='success'
+                            button.btn.btn-xs.btn-primary.bakvalidate.archive-validate(style="margin-left: 6px;",onclick="clickBtnValidate(this);") Validate
+                            button.btn.btn-xs.btn-primary.bakdeploy.archive-deploy(style="margin-left: 6px;",onclick="clickBtnDeploy(this);") Deploy
+                          if archive.status=='inProcess'
+                            button.btn.btn-xs.btn-warning(style="margin-left: 6px;",title="This is an validation/deployment in processing.",disabled=true) Validate
+                            button.btn.btn-xs.btn-warning(style="margin-left: 6px;",title="This is an validation/deployment in processing.",disabled=true) Deploy
+                          if archive.status!='inProcess'
+                            button.btn.btn-xs.btn-warning.archive-drop(style="margin-left: 6px;",onclick="clickBtnDelArchive(this);") Del
+                          if archive.status=='success'
+                            a.btn.btn-xs.btn-info.pull-right(href="/archive/#{archive._id}/download") Download
+                        td
+                          if archive.msg
+                            a.btn.btn-danger.btn-xs #{archive.msg}
+
+            else 
+              .col-md-7 No Data.
+        .row
+          .row.sectionhead  
+            .col-md-3
+              h4 Validations
+          hr
+          .row.block-body
+            if validates && validates.length>0
+              .col-md-9 
+                table.table.table-condensed
+                  thead
+                    tr
+                      th Target Organization
+                      th Date
+                      th Status
+                      th Action
+                      th Validation Result
+                  tbody
+                    for validate in validates
+                      - var createdDate = moment(validate.createdDate).format(dateformat);
+                      tr(id="#{validate._id}")
+                        td
+                          |#{validate.targetSFConnName}
+                          br
+                          |#{validate.targetSFConnUser} / #{validate.targetSFConnType} 
+                        td
+                          = createdDate
+                        td
+                          if validate.status=='new'||validate.status=='inProcess'
+                            i(title="Processing").icon-large.icon-spinner.icon-spin.validateStatus
+                          else
+                            if validate.status == 'Failed' 
+                              span.badge.fail(title="#{validate.validateErrorInfo}")|#{validate.status}
+                            else if validate.status == 'Succeeded'
+                              span.badge|#{validate.status}
+                        td
+                          if validate.status=='inProcess'
+                            button.btn.btn-xs.btn-warning.validation-drop(disabled=true,style="margin-left: 6px;",onclick="clickBtnDelValidate(this);") Del
+                          else
+                            button.btn.btn-xs.btn-warning.validation-drop(style="margin-left: 6px;",onclick="clickBtnDelValidate(this);") Del
+                        td 
+                          if validate.status=='Failed'||validate.status=='Succeeded'
+                            a.btn.btn-xs.btn-info(data-toggle="modal",data-target="#detail_#{validate._id}") Details
+                          else 
+                            a.btn.btn-xs.btn-info(data-toggle="modal",data-target="#detail_#{validate._id}",disabled=true) Details
+                          - var detailmodalid = "detail_"+validate._id
+                          .modal.fade(tabindex="-1",role="dialog",aria-labelledby="myModalLabel",aria-hidden="true",id=detailmodalid)
+                            .modal-dialog
+                              .modal-content(style="min-width:780px;")
+                                .modal-header
+                                  button.close(type="button",data-dismiss="modal",aria-hidden="true") &times;
+                                  h4.modal-title Validate Details
+                                .modal-body
+                                  .info-container
+                                    if validate.validateErrorInfo
+                                      .row
+                                        p.error #{validate.validateErrorInfo}
+                                    else if validate.validateResult && validate.validateResult.length > 0
+                                      - var result = validate.validateResult
+                                      if result[0].componentFailures || (result[0].runTestResult && result[0].runTestResult.failures)
+                                        table.table.table-hover.table-bordered.error.detail-table
+                                          thead
+                                            th File Name
+                                            th Failure Info
+                                          tbody
+                                            if result[0].componentFailures
+                                              for fails in result[0].componentFailures
+                                                tr 
+                                                  td #{fails.fullName}
+                                                  td column #{fails.columnNumber} , line #{fails.lineNumber} #{fails.problem}
+                                            if (result[0].runTestResult && result[0].runTestResult.failures)
+                                              for fails in result[0].runTestResult.failures
+                                                tr 
+                                                  td #{fails.name}
+                                                  td #{fails.message}
+                                      else 
+                                        .row
+                                          p.success 
+                                            | Validate Successfully.  
+            else 
+              .col-md-7 No Data.
+        .row 
+          .row.sectionhead 
+            .col-md-3
+              h4 Deployments
+          hr
+          .row.block-body
+            if deploys && deploys.length>0
+              .col-md-9 
+                table.table.table-condensed
+                  thead
+                    tr
+                      th Target Organization
+                      th Date
+                      th Status
+                      th Action
+                      th Deploy Result
+                  tbody
+                    for deploy in deploys
+                      - var createdDate = moment(deploy.createdDate).format(dateformat);
+                      tr(id="#{deploy._id}")
+                        td
+                          |#{deploy.targetSFConnName}
+                          br
+                          |#{deploy.targetSFConnUser} / #{deploy.targetSFConnType} 
+                        td
+                          = createdDate
+                        td
+                          if deploy.status=='new'||deploy.status=='inProcess'
+                            i(title="Processing").icon-large.icon-spinner.icon-spin.deployStatus
+                          else 
+                            if deploy.status == 'Failed' 
+                              span.badge.fail(title="#{deploy.deployErrorInfo}")|#{deploy.status}
+                            else if deploy.status == 'Succeeded'
+                              span.badge|#{deploy.status}
+                        td
+                          if deploy.status=='inProcess'
+                            button.btn.btn-xs.btn-warning.deployment-drop(disabled=true,style="margin-left: 6px;",onclick="clickBtnDelDeploy(this);") Del
+                          else
+                            button.btn.btn-xs.btn-warning.deployment-drop(style="margin-left: 6px;",onclick="clickBtnDelDeploy(this);") Del
+                        td
+                          if deploy.status=='Failed'||deploy.status=='Succeeded'
+                            a.btn.btn-xs.btn-info(data-toggle="modal",data-target="#detail_#{deploy._id}") Details
+                          else
+                            a.btn.btn-xs.btn-info(data-toggle="modal",data-target="#detail_#{deploy._id}",disabled=true) Details
+                          - var detailmodalid2 = "detail_"+deploy._id
+                          .modal.fade(tabindex="-1",role="dialog",aria-labelledby="myModalLabel",aria-hidden="true",id=detailmodalid2)
+                            .modal-dialog
+                              .modal-content(style="min-width:780px;")
+                                .modal-header
+                                  button.close(type="button",data-dismiss="modal",aria-hidden="true") &times;
+                                  h4.modal-title Deploy Details
+                                .modal-body
+                                  .info-container
+                                    if deploy.deployErrorInfo
+                                      .row
+                                        p.error #{deploy.deployErrorInfo}
+                                    else if deploy.deployResult && deploy.deployResult.length > 0
+                                      - var result2 = deploy.deployResult
+                                      if (result2[0].componentFailures || (result2[0].runTestResult && result2[0].runTestResult.failures))
+                                        table.table.table-hover.table-bordered.error.detail-table
+                                          thead
+                                            th File Name
+                                            th Failure Info
+                                          tbody
+                                            if result2[0].componentFailures
+                                              for fails2 in result2[0].componentFailures
+                                                tr 
+                                                  td #{fails2.fullName}
+                                                  td column #{fails2.columnNumber} , line #{fails2.lineNumber} #{fails2.problem}
+                                            if (result2[0].runTestResult && result2[0].runTestResult.failures)
+                                              for fails2 in result2[0].runTestResult.failures
+                                                tr 
+                                                  td #{fails2.name}
+                                                  td #{fails2.message}
+                                      else 
+                                        .row
+                                          p.success 
+                                            | Deploy Successfully. 
+            else 
+              .col-md-7 No Data.
+  include single-name
+  include sfconn-select
+  include sfconnform

@@ -1,0 +1,62 @@
+extends ../layouts/layout-default
+
+block stylesheet
+  link(rel='stylesheet', href='/styles/customer.css', type='text/css' )
+block scripts
+  script(type='text/javascript',src="/js/sfconn/sfmain.js")
+  script(type='text/javascript',src="/js/libs/forcetk.js")
+  script(type='text/javascript',src="/js/libs/spin.js")
+  script(type='text/javascript',src="/js/libs/spin.jquery.js")
+
+block content
+  .container
+    #popupWindow(style="display:none;")
+    .page-header.sectionhead 
+      h4(style="margin-bottom: 0px;") Organizations
+      if private_mode == 'private'
+        button.btn.btn-info.btn-xs.pull-right(data-toggle="modal",data-target="#sfconnform",style="margin-left:10px;margin-top: -17px;")
+          span.glyphicon.glyphicon-plus-sign
+          span(style="margin-left:6px;") New
+      else
+        button.btn.btn-info.btn-xs.pull-right(data-toggle="modal",data-target="#single-select",style="margin-left:10px;margin-top: -17px;")
+          span.glyphicon.glyphicon-plus-sign
+          span(style="margin-left:6px;") New
+    if SFConnections && SFConnections.length>0
+      table.table.table-hover.table-condensed
+        thead
+          th Organization
+          th User
+          //th Org Email
+          th Environment
+          th Action
+          //th Last File Sync Date
+          //th Created Date
+          //th
+        tbody
+          for oriSFConn in SFConnections
+            - var createdDate = moment(oriSFConn.createdDate).format(dateformat);
+            - var lastFileSyncDate = oriSFConn.lastFileSyncDate != null ? moment(oriSFConn.lastFileSyncDate).format(dateformat) : '';
+            tr(ref="#{oriSFConn._id}")
+              td 
+                a(href="/sfconn/#{oriSFConn._id}") #{oriSFConn.orgName}
+              td  #{oriSFConn.userName}
+              //td #{oriSFConn.userEmail}
+              td #{oriSFConn.orgType}
+              td
+                a.btn.btn-xs.btn-warning.sfconn-del Del
+                a(style="margin-left:4px;").btn.btn-xs.btn-info.sfconn-edit Edit 
+                //a(style="margin-left:4px;").btn.btn-xs.btn-primary.sfconn-cs ChangeSets
+                //a(style="margin-left:4px;").btn.btn-xs.btn-primary.sfconn-oauth Login 
+                //if oriSFConn.syncFileStatus=='InProgress'
+                  i.accStatus(title="Processing",style="margin-left:4px;").icon-large.icon-spinner.icon-spin
+                //else
+                  a(style="margin-left:4px;",onclick='clickBtnSyncFile(this);').btn.btn-xs.btn-primary.sfconn-sf SyncFiles
+              //td
+                = lastFileSyncDate
+              //td
+                = createdDate
+              //td
+                if oriSFConn.syncFileMsg
+                  a.btn.btn-danger.btn-xs #{oriSFConn.syncFileMsg}
+  include single-select
+  include sfconnform

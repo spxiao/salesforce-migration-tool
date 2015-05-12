@@ -1,0 +1,44 @@
+script(type='text/javascript',src="/js/sfconn/sfconn-select.js")
+
+#sfconn-select.modal.fade(tabindex="-1",role="dialog",aria-labelledby="myModalLabel",aria-hidden="true")
+  input#archiveId(type="hidden",value="")
+  input#requestType(type="hidden",value="")
+  .modal-dialog(style="width:750px;")
+    .modal-content
+      .modal-header
+        button.close(type="button",data-dismiss="modal",aria-hidden="true") &times;
+        h4.modal-title Select Target Organization
+      .modal-body
+        //- .row  
+        //-   .col-sm-3.col-md-3.col-sm-offset-1.col-md-offset-1(style="padding-top: 6px;")
+        //-     label.control-label.pull-right Name 
+        //-   .col-sm-6.col-md-6.nameClass
+        //-     input.name.form-control(type="text",placeholder="Name")
+        .row(style="margin-top:10px;")
+          //.col-sm-3.col-md-3.col-sm-offset-1.col-md-offset-1(style="padding-top: 6px;")
+            label.control-label.pull-right Organization 
+          //.col-sm-7.col-md-7.choosedSFConn(value="") None Choosed
+          .choosedSFConnId
+            input.choosedSFConn.form-control(type="text",value="None Choosed",disabled,style=" border: 0px; background: white; ")
+        .row
+          if sfconns && sfconns.length>0
+            table.table.table-condensed
+              thead
+                th
+                th Organization
+                th User
+                th Environment
+              tbody
+                for sfconn in sfconns
+                  tr
+                    td
+                      input.sfconnRadio(type="radio" value="#{sfconn._id}")
+                    td #{sfconn.orgName} 
+                    td #{sfconn.userName} 
+                    td #{sfconn.orgType}
+          else
+            | No Data.
+      .modal-footer
+        .col-sm-5.col-md-5.pull-right.col-sm-offset-7.col-md-offset-7
+          a.btn.btn-sm.btn-info.new New One 
+          a.btn.btn-sm.btn-info.submit(style="margin-left:6px;") Submit

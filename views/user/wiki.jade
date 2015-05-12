@@ -1,0 +1,95 @@
+extends ../layouts/layout-default
+
+block content
+	.container
+		.panel.panel-primary(style="margin-top:40px;")
+			.panel-heading
+				h4 The Import CSV File Format Rules
+			.panel-body
+				ul
+					li Right now , the CSV file parser only surpport staticresources, components, pages, triggers, classes, objects, labels, cutom fields, recorde types and validation rules .
+					li The first column specify the type of the record . Mapped the surpport types , you must fill the value such as StaticResource, Component...
+					li The second column specify the meta head.
+					li You can take the below table data for advise when define the CSV file . Every type can be specified several rows.
+					li(style="color:red;") Data in Column1 and Column2 should be same as the table displayed and be careful that some &nbsp;
+						span.tip suffix should be specified.
+				table.table.table-hover.table-condensed(style="width: 50%;margin-left: 50px;")
+					thead
+						th column1
+						th column2
+						th column3
+						th column4
+						th ...
+					tbody
+						tr 
+							td StaticResource
+							td staticresources
+							td staticresource1
+								span.tip .resource
+							td staticresource2
+								span.tip .resource
+							td ...
+						tr 
+							td Component
+							td components
+							td Component1
+								span.tip .component
+							td Component2
+								span.tip .component
+							td ...
+						tr 
+							td Page
+							td pages
+							td page1
+								span.tip .page
+							td page2
+								span.tip .page
+							td ...
+						tr 
+							td Trigger
+							td triggers
+							td trigger1
+								span.tip .trigger
+							td trigger2
+								span.tip .trigger
+							td ...
+						tr 
+							td ApexClass
+							td classes
+							td class1
+								span.tip .cls
+							td class2
+								span.tip .cls
+							td ...
+						tr 
+							td Object
+							td objects
+							td object1
+								span.tip .object
+							td object2
+								span.tip .object
+							td ...
+						tr 
+							td CustomLabel
+							td labels
+							td label1
+							td label2
+							td ...
+						tr 
+							td CustomField
+							td ObjectName
+							td field1
+							td field2
+							td ...
+						tr 
+							td RecordType
+							td ObjectName
+							td RecordType1
+							td RecordType2
+							td ...
+						tr 
+							td ValidationRule
+							td ObjectName
+							td ValidationRule1
+							td ValidationRule2
+							td ...

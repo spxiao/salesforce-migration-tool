@@ -1,0 +1,79 @@
+extends ../layouts/layout-default
+
+block stylesheet
+  link(rel='stylesheet', href='/styles/customer.css', type='text/css' )
+
+block scripts
+  script(type='text/javascript',src="/js/libs/spin.js")
+  script(type='text/javascript',src="/js/libs/spin.jquery.js")
+  script(type='text/javascript',src="/js/sfconn/sfconnInfo.js")
+
+block content
+  input#sfconnId(type="hidden",value="#{sfconn._id}")
+  .container
+    .row(style="margin-left:0px;margin-right:0px;")
+      h4 
+        span Organization
+        a.btn.btn-info.btn-xs.sfconn-edit(style="margin-left:6px;") 
+          i.icon-pencil 
+          span Edit
+        a.btn.btn-info.btn-xs.sfconn-syncFile(style="margin-left:6px;")  
+          if sfconn.syncFileStatus == 'InProgress'
+            i.icon-refresh.icon-spin 
+          else
+            i.icon-refresh 
+          span Sync File List
+        br 
+        small(style="margin-left:15px;") #{sfconn.orgName}(#{sfconn.userName})
+          span 
+            |Last Syncronization :
+          span.lastFileSyncDate 
+            =moment(sfconn.lastFileSyncDate).format(dateformat)
+    .alert.alert-dismissable.sfconn-sync-info(style="margin:0px;display:none;margin-left:6px;")
+      button.close(type="button",data-dismiss="alert",aria-hidden="true") &times;
+      span.sfconn-sync-info
+    .panel
+      .panel-heading.sectionhead(style="padding-bottom:2px;margin-top:2px;") 
+        h4(style="margin-bottom:0px;") Change Sets
+          button.btn.btn-info.btn-xs.pull-right(style="margin-left: 6px;",onclick="window.open('/sfconn/#{sfconn._id}/changeSets','_self');")
+            span.glyphicon.glyphicon-plus 
+            span(style="margin-left:6px;") New
+      .panel-body(style="padding-top:2px;")
+        hr
+        .row.alert(style="display:none;")
+        if changeSets && changeSets.length>0
+          .row(style="margin-top: 8px;")
+            table.table.table-hover.table-condensed
+              thead
+               tr 
+                 th Name
+                 th Created By
+                 th Created Date
+                 th Action
+              tbody
+                for changeSet in changeSets
+                  - var createdDate = moment(changeSet.createdDate).format(dateformat);
+                  tr(id="#{changeSet._id}")
+                    td 
+                      a(href="#",onclick="window.open('/sfconn/#{sfconn._id}/changeSets/#{changeSet._id}','_self')") #{changeSet.name}
+                    td #{user.profile.name}
+                    td 
+                      = createdDate
+                    td
+                      button.btn.btn-xs.btn-warning.delete(type="button") Del
+                      if changeSet.archiveStatus=='block'
+                        button.btn.btn-xs.btn-warning(style="margin-left:6px;",type="button",title="Archiving. You can't edit this ChangeSet files.") Edit
+                        //button.btn.btn-xs.btn-warning(style="margin-left:6px;",type="button",title="Archiving. You can't do archive at the moment.") Archive
+                      else
+                        button.btn.btn-xs.btn-info(style="margin-left:6px;",type="button",onclick="window.open('/sfconn/#{sfconn._id}/changeSets?csId=#{changeSet._id}','_self')") Edit
+                        //button.btn.btn-xs.btn-primary.archive(style="margin-left:6px;",type="button",data-toggle="modal",data-target='#single-name') Archive
+                      //- if changeSet.deployStatus=='block' || changeSet.validateStatus=='block'
+                      //-   button.btn.btn-xs.btn-warning(style="margin-left:6px;",type="button",title="This is an validation/deployment in processing.") Validate
+                      //-   button.btn.btn-xs.btn-warning(style="margin-left:6px;",type="button",title="This is an validation/deployment in processing.") Deploy
+                      //- else
+                      //-   button.btn.btn-xs.btn-primary.validate(style="margin-left:6px;",type="button",data-toggle="modal",data-target="#newSFConnPanel") Validate
+                      //-   button.btn.btn-xs.btn-primary.deploy(style="margin-left:6px;",type="button",data-toggle="modal",data-target="#newSFConnPanel") Deploy
+        else
+          .row(style="margin-left: 30px;") No Data.
+  include single-name
+  include sfconnform

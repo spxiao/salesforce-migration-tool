@@ -1,0 +1,108 @@
+.badge-edit{
+	background-color:#5BC0DE;
+}
+.badge-signIn{
+	background-color:#428BCA;
+}
+.badge-del{
+	background-color:#F0AD4E;
+}
+.panel-body hr{
+	margin-top: 0px;
+	margin-bottom: 4px;
+}
+.panel-body h4{
+	margin-left: 20px;
+}
+.panel-body .block-body{
+	margin-left: 30px;
+}
+.container{
+	/*border:1px solid #ccc;*/
+	min-height: 600px;
+}
+
+.error{
+	color:red;
+	margin-left: 30px;
+}
+.success{
+	color:green;
+	margin-left: 30px;
+}
+
+div.validate-result-contaniner{
+	overflow: scroll;
+	max-height: 300px;
+}
+
+.input_error{
+	border:1px solid red;
+}
+
+a:hover{
+	cursor: pointer;
+}
+/*.btn{
+	color: black!important;
+}*/
+
+.info-container{
+overflow: scroll;
+padding: 4px;
+overflow-x: hidden;
+max-height: 300px;
+}
+
+.detail-table{
+	width: 90%;
+}
+
+span.folder{
+	font-weight: bold;
+	font-size: 10px;
+}
+
+em.fourth-font {
+	font-size: 10px;
+}
+
+div.row{
+	margin-right: 0px;
+	margin-left: 0px;
+}
+
+span.tip{
+	color:green;
+}
+
+div.homebg{
+	margin-left:0px;
+	margin-right:0px;
+	background: url('/images/app/home_bg.png') no-repeat center center fixed; 
+	background-color:#ccc;
+	width: 100%;
+	height: 100%;
+}
+
+div.sectionhead{
+	border-top: 2px solid #1F98D1;
+	border-top-right-radius: 5px;
+	border-top-left-radius: 5px;
+} 
+
+i{
+	cursor: pointer;
+	margin-right: 4px;
+}
+
+.left-ul li {
+	padding: 2px;
+}
+.badge{
+	background-color: #5CB85C;
+}
+
+.badge.fail{
+	background-color: #D9534F;
+}

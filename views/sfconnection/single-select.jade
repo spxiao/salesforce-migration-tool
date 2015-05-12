@@ -1,0 +1,25 @@
+script(type='text/javascript',src="/js/libs/jquery.popup.js")
+script(type='text/javascript',src="/js/sfconn/single-select.js")
+
+#single-select.modal.fade(tabindex="-1",role="dialog",aria-labelledby="myModalLabel",aria-hidden="true")
+  .modal-dialog(style="width:400px;margin-top:120px;")
+    .modal-content
+      .modal-header
+        button.close(type="button",data-dismiss="modal",aria-hidden="true") &times;
+        h4.modal-title Target Organization 
+      .modal-body
+        .row  
+          .col-sm-3.col-md-3.col-sm-offset-1.col-md-offset-1(style="padding-top: 6px;")
+            label.control-label Name 
+          .col-sm-7.col-md-7
+            input.name.form-control(type="text",placeholder="Name")
+        br
+        .row  
+          .col-md-offset-2.col-sm-offset-2.col-sm-4.col-md-4
+            a.btn.btn-info.btn-sm
+              i.icon-ok(style="margin-right:6px;")
+              |#{single_select_choose1}
+          .col-sm-4.col-md-4
+            a.btn.btn-info.btn-sm
+              i.icon-ok(style="margin-right:6px;")
+              |#{single_select_choose2}

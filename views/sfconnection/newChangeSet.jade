@@ -1,0 +1,199 @@
+extends ../layouts/layout-default
+
+block stylesheet
+  link(rel='stylesheet', href='/styles/customer.css', type='text/css' )
+
+block scripts
+  script(type='text/javascript',src="/js/sfconn/changeSet.js")
+
+block content
+  .container
+    .row(style="margin-left:0px;margin-right:0px;")
+      h4 
+        span Change Set 
+        a.btn.btn-info.btn-xs.sfconn-syncFile(style="margin-left:6px;")  
+          if sfconn.syncFileStatus == 'InProgress' || message
+            i.icon-refresh.icon-spin 
+          else
+            i.icon-refresh 
+          span Sync File List
+        br
+        small(style="margin-left:15px;") #{sfconn.orgName}(#{sfconn.userName})
+          span 
+            |Last Syncronization :
+          span 
+            =moment(sfconn.lastFileSyncDate).format(dateformat)
+    .panel.sectionhead
+      .panel-body
+        #errMessage.alert.alert-danger(style="display:none;")
+        form.form-horizontal
+          input#sfconnId(type="hidden",value="#{sfconn._id}")
+          .form-group
+            label.col-sm-1.control-label Name
+            .col-md-3
+              if changeSet
+                input#changeSetName.form-control(disabled=true,name="changeSetName",type="text",placeholder="Changeset Name",value="#{changeSet.name}")
+              else
+                input#changeSetName.form-control(name="changeSetName",type="text",placeholder="Changeset Name")
+            .col-md-1
+              button#newCSSaveBtn.btn.btn-primary.btn-md(type="button") Save
+            #warning.col-md-4(style="display:none;height:34px;")
+              .alert.alert-warning.form-control(style="padding-top:6px;") 
+          .form-group
+            label.col-sm-1.control-label Files
+            .col-md-3
+              input#searchFile.form-control(type="text",placeholder="Search File")
+          .form-group
+            .col-sm-7(style=" overflow: scroll; overflow-x: hidden; height: 450px;border: 1px solid #ccc; ")
+              ul.list-unstyled.left-ul
+                if sfconn.fileInfo && sfconn.fileInfo.length > 0
+                  for metaData in sfconn.fileInfo
+                    for childFile in metaData.childFiles
+                      if csFileStr.indexOf('$'+childFile.fileName+'$') > -1
+                        li(data-name="#{childFile.fileName}") 
+                          i.icon-trash(onclick="del(this);") 
+                          span #{childFile.fileName}
+                          span.badge.pull-right #{childFile.type}
+                      if childFile.customerField
+                        for theField in childFile.customerField
+                          if csFileStr.indexOf('$'+theField.fullName+'$') > -1
+                            li(data-name="#{theField.fullName}") 
+                              i.icon-trash(onclick="del(this);")  
+                              span #{theField.fullName}
+                              span.badge.pull-right #{theField.type}
+                      if childFile.validationRule
+                        for theRule in childFile.validationRule
+                          if csFileStr.indexOf('$'+theRule.fullName+'$') > -1
+                            li(data-name="#{theRule.fullName}") 
+                              i.icon-trash(onclick="del(this);")  
+                              span #{theRule.fullName}
+                              span.badge.pull-right #{theRule.type}
+                      if childFile.recordType
+                        for theType in childFile.recordType
+                          if csFileStr.indexOf('$'+theType.fullName+'$') > -1 
+                            li(data-name="#{theType.fullName}") 
+                              i.icon-trash(onclick="del(this);")  
+                              span #{theType.fullName}
+                              span.badge.pull-right #{theType.type}
+                      if childFile.labels
+                        for theLable in childFile.labels
+                          if csFileStr.indexOf('$'+theLable.fullName+'$') > -1
+                            li(data-name="#{theLable.fullName}") 
+                              i.icon-trash(onclick="del(this);")  
+                              span #{theLable.fullName}
+                              span.badge.pull-right #{theLable.type}
+            .col-md-5(style=" overflow: scroll; overflow-x: hidden; height: 450px;border: 1px solid #ccc; ")
+              if message
+                .alert.alert-info(style="margin-top:10px;text-align:center;")
+                  |#{message}
+                  i.icon-spinner.icon-spin.icon-3x.csFileSync
+              else
+                ul.list-unstyled.right-ul
+                  if sfconn.fileInfo && sfconn.fileInfo.length > 0
+                    for metaData in sfconn.fileInfo
+                      - var metaName = metaData.metaObject.helpHeader || metaData.metaObject.xmlName
+                      
+                      li(ref=metaName,mode="metaObject") 
+                        .checkbox
+                          i.icon-plus-sign.controlBtn.controlFold
+                          label
+                            input(type="checkbox",mode="metaObjectAllCheck",name="metaObject")
+                            =metaName
+                      for childFile in metaData.childFiles
+                        - var fixedType
+                        - if (metaName == 'Object - Standard')
+                          - fixedType = 'StandardObject'
+                        - else if (metaName == 'Object - Custom')
+                          - fixedType = 'CustomObject'
+                        - if (!fixedType)
+                          - fixedType = childFile.type
+                        li(ref=metaName,mode="metaObjectChild",style="display:none;margin-left: 20px;",data-name="#{childFile.fileName}",data-origin_ref="#{metaData.metaObject.xmlName}",data-type=fixedType)
+                          .checkbox
+                            if childFile.customerField || childFile.recordType || childFile.validationRule || childFile.labels
+                              i.icon-caret-right.thirdCtl(style="margin-right: 4px;")
+                            label
+                              if csFileStr.indexOf('$'+childFile.fileName+'$') > -1
+                                input(checked=true,type="checkbox",ref=metaName,mode="metaFile",name="metaFile")
+                              else
+                                input(type="checkbox",ref=metaName,mode="metaFile",name="metaFile")
+                              em
+                                |#{childFile.fileName}
+                          if childFile.customerField
+                            li(style="display:none;margin-left: 40px;",ref="#{childFile.fileName}",mode="detailFolder",data-root=metaName,data-ctr="objectField")
+                              .checkbox
+                                i.icon-caret-right.fourCtl(style="margin-right:4px;")
+                                label 
+                                  input.fourCtl(type="checkbox")
+                                span.folder Custom Fields
+                            for field in childFile.customerField
+                              li(style="display:none;margin-left: 60px;",data-name="#{field.fullName}",ref="#{childFile.fileName}",mode="objectField",data-root=metaName,data-type="#{field.type}")
+                                .checkbox
+                                  label
+                                    if csFileStr.indexOf('$'+field.fullName+'$') > -1
+                                      input.fifthCtr(checked=true,type="checkbox",mode="objectField",data-metaname="CustomField")
+                                    else
+                                      input.fifthCtr(type="checkbox",mode="objectField",data-metaname="CustomField")
+                                    em.fourth-font #{field.fullName}
+                          if childFile.recordType
+                            li(style="display:none;margin-left: 40px;",ref="#{childFile.fileName}",mode="detailFolder",data-root=metaName,data-ctr="objectRecordType")
+                              .checkbox
+                                i.icon-caret-right.fourCtl(style="margin-right:4px;")
+                                label 
+                                  input.fourCtl(type="checkbox")
+                                span.folder Record Types
+                            for rt in childFile.recordType
+                              li(style="display:none;margin-left: 60px;",data-name="#{rt.fullName}",ref="#{childFile.fileName}",mode="objectRecordType",data-root=metaName,data-type="#{rt.type}")
+                                .checkbox
+                                  label
+                                    if csFileStr.indexOf('$'+rt.fullName+'$') > -1
+                                      input.fifthCtr(checked=true,type="checkbox",mode="objectRecordType",data-metaname="RecordType")
+                                    else
+                                      input.fifthCtr(type="checkbox",mode="objectRecordType",data-metaname="RecordType")
+                                    em.fourth-font #{rt.fullName}
+                          if childFile.validationRule
+                            li(style="display:none;margin-left: 40px;",ref="#{childFile.fileName}",mode="detailFolder",data-root=metaName,data-ctr="objectValidationRule")
+                              .checkbox
+                                i.icon-caret-right.fourCtl(style="margin-right:4px;")
+                                label 
+                                  input.fourCtl(type="checkbox")
+                                span.folder Validation Rules
+                            for vr in childFile.validationRule
+                              li(style="display:none;margin-left: 60px;",data-name="#{vr.fullName}",ref="#{childFile.fileName}",mode="objectValidationRule",data-root=metaName,data-type="#{vr.type}")
+                                .checkbox
+                                  label
+                                    if csFileStr.indexOf('$'+vr.fullName+'$') > -1
+                                      input.fifthCtr(checked=true,type="checkbox",mode="objectValidationRule",data-metaname="ValidationRule")
+                                    else
+                                      input.fifthCtr(type="checkbox",mode="objectValidationRule",data-metaname="ValidationRule")
+                                    em.fourth-font #{vr.fullName}
+                          if childFile.labels
+                            li(style="display:none;margin-left: 40px;",ref="#{childFile.fileName}",mode="detailFolder",data-root=metaName,data-ctr="customerlabel")
+                              .checkbox
+                                i.icon-caret-right.fourCtl(style="margin-right:4px;")
+                                label 
+                                  input.fourCtl(type="checkbox")
+                                span.folder Custom Labels
+                            for cl in childFile.labels
+                              li(style="display:none;margin-left: 60px;",data-name="#{cl.fullName}",ref="#{childFile.fileName}",mode="customerlabel",data-root=metaName,data-type="#{cl.type}")
+                                .checkbox
+                                  label
+                                    if csFileStr.indexOf('$'+cl.fullName+'$') > -1
+                                      input.fifthCtr(checked=true,type="checkbox",mode="customerlabel",data-metaname="CustomLabel")
+                                    else
+                                      input.fifthCtr(type="checkbox",mode="customerlabel",data-metaname="CustomLabel")
+                                    em.fourth-font #{cl.fullName}
+        form.form-horizontal(enctype="multipart/form-data",method="post",action="/sfconn/#{sfconn._id}/analyzeCSV")
+          if changeSet
+            input(type="hidden",name="csId",value="#{changeSet._id}")
+          .form-group
+            label.col-sm-1.control-label Import CSV
+            .col-md-3
+              input#inputCSV.form-control(type="file",name="inputfile",onchange="selectfile(this);")
+            .col-md-6
+              button.btn.btn-primary.btn-md(type="submit") Analyze The File
+              em(style="margin-left:8px;")
+                small You can check the file formate rule by 
+                  a(href="/wiki") wiki
+
+
+

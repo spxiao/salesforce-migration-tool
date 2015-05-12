@@ -1,0 +1,1 @@
+// Use Basic Authentication for staging environment.

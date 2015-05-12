@@ -1,0 +1,22 @@
+!!! 5
+html(lang='en')
+  head
+    title #{title}
+    link(rel='stylesheet', href='/styles/font-awesome.min.css', type='text/css')
+    link(rel='stylesheet', href='/styles/bootstrap.css', type='text/css')
+    link(rel='stylesheet', href='/styles/customer.css', type='text/css')
+    block stylesheet
+    script(type='text/javascript', src="/js/libs/jquery.js")
+    script(type='text/javascript', src="/js/libs/jquery-dateformat.js")
+    script(type='text/javascript', src="/js/libs/bootstrap.js")
+    script(type='text/javascript', src="/js/libs/bootstrap-confirmation.js")
+    script(type='text/javascript', src="/js/commons/home.js")
+    block scripts
+  body
+    include head
+    .row(style="min-width:980px;")
+      block home
+      .col-md-10.col-sm-10.col-md-offset-1.col-md-offset-1 
+        include errMessage
+        block content
+    include foot
